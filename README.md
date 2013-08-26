@@ -40,6 +40,8 @@ Start ArcMap. Create a toolbox named *HBaseToolbox*, and add to it the *ExportTo
 
 ## CreateHTableTool
 
+![CreateHTableTool](https://dl.dropboxusercontent.com/u/2193160/CreateHTableTool.png)
+
 Tool to create a table in HBase with two column families:
 
 * geom - CF to hold the feature geometry
@@ -53,6 +55,8 @@ Here is a sample _hadoop.properties_ content:
     dfs.replication=1
 
 ## ExportToHBaseTool
+
+![ExportToHBaseTool](https://dl.dropboxusercontent.com/u/2193160/ExportToHBaseTool.png)
 
 Tool to export a feature class into an HBase table.
 
