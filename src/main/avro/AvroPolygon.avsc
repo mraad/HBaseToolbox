@@ -1,0 +1,48 @@
+{
+    "namespace": "com.esri",
+    "type": "record",
+    "name": "AvroPolygon",
+    "fields": [
+        {
+            "name": "spatialReference",
+            "type": {
+                "namespace": "com.esri",
+                "type": "record",
+                "name": "AvroSpatialReference",
+                "fields": [
+                    {
+                        "name": "wkid",
+                        "type": "int",
+                        "default": 4326
+                    }
+                ]
+            }
+        },
+        {
+            "name": "rings",
+            "type": {
+                "type": "array",
+                "items": {
+                    "type": "array",
+                    "items": {
+                        "namespace": "com.esri",
+                        "type": "record",
+                        "name": "AvroCoord",
+                        "fields": [
+                            {
+                                "name": "x",
+                                "type": "double",
+                                "default": 0.0
+                            },
+                            {
+                                "name": "y",
+                                "type": "double",
+                                "default": 0.0
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}
