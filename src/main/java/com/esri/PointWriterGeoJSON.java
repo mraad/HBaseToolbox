@@ -30,8 +30,7 @@ public class PointWriterGeoJSON implements ShapeWriterInterface
         put.add(geomColFam, pointQual, Bytes.toBytes(m_stringBuilder.toString()));
     }
 
-    @Override
-    public void close()
+    private void close()
     {
     }
 }

@@ -15,8 +15,7 @@ public class ShapeWriterNoop implements ShapeWriterInterface
     {
     }
 
-    @Override
-    public void close()
+    private void close()
     {
     }
 }

@@ -104,82 +104,75 @@ public final class ExportToHBaseTool extends AbstractTool
         final RowKeyGeneratorInterface rowKeyGeneratorInterface = new RowKeyGeneratorOID(); // TODO - make configurable
         final boolean writeToWAL = "true".equalsIgnoreCase(configuration.get("exportToHBaseTool.writeToWAL", "true"));
         final ShapeWriterInterface shapeWriter = toShapeWriter(configuration, featureClass);
+        final IFields fields = featureClass.getFields();
         try
         {
-            final IFields fields = featureClass.getFields();
+            addMessage(messages, fields);
+            final IFeatureCursor cursor = featureClass.search(null, false);
             try
             {
-                addMessage(messages, fields);
-                final IFeatureCursor cursor = featureClass.search(null, false);
-                try
+                IFeature feature = cursor.nextFeature();
+                while (feature != null)
                 {
-                    IFeature feature = cursor.nextFeature();
-                    while (feature != null)
+                    final Put put = new Put(rowKeyGeneratorInterface.generateRowKey(feature));
+                    put.setWriteToWAL(writeToWAL);
+
+                    shapeWriter.write(put, Const.GEOM, feature.getShape());
+
+                    final int fieldCount = fields.getFieldCount();
+                    for (int f = 0; f < fieldCount; f++)
                     {
-                        final Put put = new Put(rowKeyGeneratorInterface.generateRowKey(feature));
-                        put.setWriteToWAL(writeToWAL);
-
-                        shapeWriter.write(put, Const.GEOM, feature.getShape());
-
-                        final int fieldCount = fields.getFieldCount();
-                        for (int f = 0; f < fieldCount; f++)
+                        final IField field = fields.getField(f);
+                        try
                         {
-                            final IField field = fields.getField(f);
-                            try
+                            final byte[] name = Bytes.toBytes(field.getName());
+                            final Object value = feature.getValue(f);
+                            switch (field.getType())
                             {
-                                final byte[] name = Bytes.toBytes(field.getName());
-                                final Object value = feature.getValue(f);
-                                switch (field.getType())
-                                {
-                                    case esriFieldType.esriFieldTypeString:
-                                        put.add(Const.ATTR, name, Bytes.toBytes((String) value));
-                                        break;
-                                    case esriFieldType.esriFieldTypeSingle:
-                                        put.add(Const.ATTR, name, Bytes.toBytes((Float) value));
-                                        break;
-                                    case esriFieldType.esriFieldTypeDouble:
-                                        put.add(Const.ATTR, name, Bytes.toBytes((Double) value));
-                                        break;
-                                    case esriFieldType.esriFieldTypeInteger:
-                                        put.add(Const.ATTR, name, Bytes.toBytes((Integer) value));
-                                        break;
-                                    case esriFieldType.esriFieldTypeSmallInteger:
-                                        if (value instanceof Short)
-                                        {
-                                            put.add(Const.ATTR, name, Bytes.toBytes((Short) value));
-                                        }
-                                        else if (value instanceof Byte)
-                                        {
-                                            put.add(Const.ATTR, name, Bytes.toBytes((Byte) value));
-                                        }
-                                        break;
-                                }
-                            }
-                            finally
-                            {
-                                Cleaner.release(field);
+                                case esriFieldType.esriFieldTypeString:
+                                    put.add(Const.ATTR, name, Bytes.toBytes((String) value));
+                                    break;
+                                case esriFieldType.esriFieldTypeSingle:
+                                    put.add(Const.ATTR, name, Bytes.toBytes((Float) value));
+                                    break;
+                                case esriFieldType.esriFieldTypeDouble:
+                                    put.add(Const.ATTR, name, Bytes.toBytes((Double) value));
+                                    break;
+                                case esriFieldType.esriFieldTypeInteger:
+                                    put.add(Const.ATTR, name, Bytes.toBytes((Integer) value));
+                                    break;
+                                case esriFieldType.esriFieldTypeSmallInteger:
+                                    if (value instanceof Short)
+                                    {
+                                        put.add(Const.ATTR, name, Bytes.toBytes((Short) value));
+                                    }
+                                    else if (value instanceof Byte)
+                                    {
+                                        put.add(Const.ATTR, name, Bytes.toBytes((Byte) value));
+                                    }
+                                    break;
                             }
                         }
-
-                        table.put(put);
-                        count++;
-
-                        feature = cursor.nextFeature();
+                        finally
+                        {
+                            Cleaner.release(field);
+                        }
                     }
-                }
-                finally
-                {
-                    Cleaner.release(cursor);
+
+                    table.put(put);
+                    count++;
+
+                    feature = cursor.nextFeature();
                 }
             }
             finally
             {
-                Cleaner.release(fields);
+                Cleaner.release(cursor);
             }
         }
         finally
         {
-            shapeWriter.close();
+            Cleaner.release(fields);
         }
         return count;
     }

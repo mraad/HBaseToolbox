@@ -14,5 +14,4 @@ public interface ShapeWriterInterface
             final byte[] geomColFam,
             final IGeometry geometry) throws IOException;
 
-    public void close();
 }

@@ -11,9 +11,6 @@ import java.io.IOException;
  */
 public class PointWriterBytes implements ShapeWriterInterface
 {
-    private final byte[] qualX = Bytes.toBytes("x");
-    private final byte[] qualY = Bytes.toBytes("y");
-
     @Override
     public void write(
             final Put put,
@@ -21,12 +18,11 @@ public class PointWriterBytes implements ShapeWriterInterface
             final IGeometry geometry) throws IOException
     {
         final Point point = (Point) geometry;
-        put.add(geomColFam, qualX, Bytes.toBytes(point.getX()));
-        put.add(geomColFam, qualY, Bytes.toBytes(point.getY()));
+        put.add(geomColFam, Const.X, Bytes.toBytes(point.getX()));
+        put.add(geomColFam, Const.Y, Bytes.toBytes(point.getY()));
     }
 
-    @Override
-    public void close()
+    private void close()
     {
     }
 }
