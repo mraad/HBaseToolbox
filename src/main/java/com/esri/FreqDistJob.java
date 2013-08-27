@@ -16,6 +16,7 @@ import org.apache.hadoop.util.ToolRunner;
 import java.io.IOException;
 
 /**
+ * mvn -P job clean package
  * hadoop jar target/HBaseToolbox-1.0-SNAPSHOT-job.jar /user/cloudera/points.txt /user/cloudera/output
  */
 public class FreqDistJob extends Configured implements Tool

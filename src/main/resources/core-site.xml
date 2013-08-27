@@ -17,7 +17,7 @@
     </property>
     <property>
         <name>mapred.job.tracker</name>
-        <value>localhost:8021</value>
+        <value>localhost.localdomain:8021</value>
     </property>
     <property>
         <name>dfs.replication</name>
@@ -29,6 +29,6 @@
     </property>
     <property>
         <name>fs.default.name</name>
-        <value>hdfs://localhost:8020/</value>
+        <value>hdfs://localhost.localdomain:8020/</value>
     </property>
 </configuration>

@@ -119,3 +119,7 @@ This project relies on the specific implementation of these schemas.
 So, to convert the schemas into concrete classes, execute the following command:
 
     $ mvn avro:schema
+
+## Spatial Query
+
+/opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
