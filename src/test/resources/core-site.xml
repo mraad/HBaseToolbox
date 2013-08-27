@@ -5,4 +5,8 @@
         <name>hadoop.security.authentication</name>
         <value>simple</value>
     </property>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
+    </property>
 </configuration>

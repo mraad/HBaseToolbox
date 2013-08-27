@@ -17,7 +17,11 @@
     </property>
     <property>
         <name>mapred.job.tracker</name>
-        <value>localhost.localdomain:8021</value>
+        <value>localhost:8021</value>
+    </property>
+    <property>
+        <name>dfs.replication</name>
+        <value>1</value>
     </property>
     <property>
         <name>dfs.client.use.legacy.blockreader</name>
@@ -25,6 +29,6 @@
     </property>
     <property>
         <name>fs.default.name</name>
-        <value>hdfs://localhost.localdomain:8020/</value>
+        <value>hdfs://localhost:8020/</value>
     </property>
 </configuration>

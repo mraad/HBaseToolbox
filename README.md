@@ -49,8 +49,8 @@ Tool to create a table in HBase with two column families:
 
 Here is a sample _hadoop.properties_ content:
 
-    fs.default.name=hdfs\://localhadoop\:9000
-    fs.defaultFS=hdfs\://localhadoop\:9000
+    fs.default.name=hdfs\://localhost\:8020
+    fs.defaultFS=hdfs\://localhost\:8020
     dfs.client.use.legacy.blockreader=true
     dfs.replication=1
 
@@ -89,8 +89,8 @@ Once an HBase table is defined in Hive, it can be also consumed from [Impala](ht
 
     $ impala-shell
 
-    [localhost.localdomain:21000] > invalidate metadata;
-    [localhost.localdomain:21000] > select avg(x),avg(y) from worldlabels where key between 100 and 200;
+    [localhost:21000] > invalidate metadata;
+    [localhost:21000] > select avg(x),avg(y) from worldlabels where key between 100 and 200;
     Query: select avg(x),avg(y) from worldlabels where key between 100 and 200
     Query finished, fetching results ...
     +-------------------+-------------------+

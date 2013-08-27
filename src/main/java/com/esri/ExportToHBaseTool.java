@@ -101,7 +101,15 @@ public final class ExportToHBaseTool extends AbstractTool
             final HTableInterface table) throws IOException
     {
         int count = 0;
-        final RowKeyGeneratorInterface rowKeyGeneratorInterface = new RowKeyGeneratorOID(); // TODO - make configurable
+        final RowKeyGeneratorInterface rowKeyGeneratorInterface;
+        switch (featureClass.getShapeType())
+        {
+            case esriShapeType.esriShapePoint:
+                rowKeyGeneratorInterface = new RowKeyGeneratorQuadPoint();
+                break;
+            default: // TODO - handle polyline and polygons
+                rowKeyGeneratorInterface = new RowKeyGeneratorOID();
+        }
         final boolean writeToWAL = "true".equalsIgnoreCase(configuration.get("exportToHBaseTool.writeToWAL", "true"));
         final ShapeWriterInterface shapeWriter = toShapeWriter(configuration, featureClass);
         final IFields fields = featureClass.getFields();
@@ -194,9 +202,13 @@ public final class ExportToHBaseTool extends AbstractTool
                 {
                     shapeWriter = new PointWriterAvro(getWkid(featureClass));
                 }
-                else
+                else if ("bytes".equalsIgnoreCase(shapeWriterType))
                 {
                     shapeWriter = new PointWriterBytes();
+                }
+                else // noop
+                {
+                    shapeWriter = new ShapeWriterNoop();
                 }
                 break;
             default: // TODO - Polyline and Polygon !
