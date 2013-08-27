@@ -108,9 +108,10 @@ When it came down to qualifying and populating the geometry column family, I wan
 
 There exists a configuration property named _exportToHBase.shapeWriterType_ with the following values that enables me to switch storage formats:
 
-* bytes - write each column qualifier value as a byte array.
-* geojson - write each column qualifier value in [GeoJSON](http://www.geojson.org/geojson-spec.html) format.
-* avro - Write each column qualifier value in [Avro](http://avro.apache.org/docs/current/) format.
+* bytes - Write each column qualifier value as a byte array.
+* geojson - Write a column qualifier value in [GeoJSON](http://www.geojson.org/geojson-spec.html) format.
+* avro - Write a column qualifier value in [Avro](http://avro.apache.org/docs/current/) format.
+* noop - Do not write any values.
 
 ### Avro Format
 
@@ -122,4 +123,5 @@ So, to convert the schemas into concrete classes, execute the following command:
 
 ## Spatial Query
 
-/opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
+    sudo cp target/geohash-1.0.8.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
+    sudo cp target/HBaseToolbox-1.0-SNAPSHOT.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
