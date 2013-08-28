@@ -150,16 +150,16 @@ This solution never worked for me. I had to explicitly copy the jars to the parc
 Typically, when you want to perform a spatial join between two datasets in a MapReduce implementation, the smaller set is
 loaded into an in memory spatial index and you stream through the bigger set in the map or reduce phase while performing
 spatial searches on the index. Now this is fine is the set can fit in the mapper or reducer memory space. what if it cannot ?
-this is where HBase can come to the rescue with the above rowkey implementation. Remember, Hbase is a fast massive in-memory
+This is where HBase can come to the rescue with the above rowkey implementation. Remember, HBase is a fast massive in-memory
 key-value lookup engine. So we can use the range scan and the filter to quickly locate items in say a bounding box.
-See bounding boxes are nice as they translate to geohash ranges.  The book talks about this in more detail.
+See bounding boxes are nice as they translate to geohash ranges. The book talks about this in more detail.
 
 Actually, I used this technique to solve a business problem where I was given two huge sets of data points and was asked
 to find the distribution of the frequency of the distances of the two closest points from each set within a specified distance.
-Basically, give a point from the first set, find the closest point in the second set and keep a tally of that rounded distance.
+Basically, given a point from the first set, find the closest point in the second set and keep a tally of that rounded distance.
 
 The following is a mock implementation as I cannot share the real data.
-So, I wrote a standalone program to load the lookup table (LUT) data into HBase:
+I wrote a standalone program to load the lookup table (LUT) data into HBase:
 
     $ mvn exec:java -q -Dexec.mainClass=com.esri.CreatePutLUT -Dexec.args="1000"
 
@@ -177,7 +177,7 @@ And finally, a MapReduce Job that will perform the spatial search:
 ## Future Experiments
 
 * Handle polyline and polygons RowKey generation by embedding bounding box
-* Expand Quad code implementation to handle bounding boxes
+* Expand Quad code implementation to handle bounding boxes as input
 * Try different quad code implementation such as [Morton](http://en.wikipedia.org/wiki/Z-order_curve).
 * Dynamic Generation of Spatial Index
 * Geo-Enrichment application
