@@ -47,6 +47,8 @@ Tool to create a table in HBase with two column families:
 * geom - CF to hold the feature geometry
 * attr - CF to hold the feature attributes
 
+*Note:* If the table exists, it is disabled, deleted and recreated !
+
 Here is a sample _hadoop.properties_ content:
 
     fs.default.name=hdfs\://localhost\:8020
@@ -58,7 +60,7 @@ Here is a sample _hadoop.properties_ content:
 
 ![ExportToHBaseTool](https://dl.dropboxusercontent.com/u/2193160/ExportToHBaseTool.png)
 
-Tool to export a feature class into an HBase table.
+Tool to export a feature class into an HBase table. The table is created on the fly if one does _not_ exist.
 
 ## Hive Integration
 
@@ -124,7 +126,7 @@ So, to convert the schemas into concrete classes, execute the following command:
 ## RowKey Generation
 
 The most important factor in building an HBase table is the design of the RowKey as it heavily affects _Scan_ operations.
-To create spatial locality, I decided to use [Geohash](http://en.wikipedia.org/wiki/Geohash) like in the book [Hbase In Action](http://www.manning.com/dimidukkhurana/).
+To create spatial locality, I decided to use [Geohash](http://en.wikipedia.org/wiki/Geohash) like in the book [HBase In Action](http://www.manning.com/dimidukkhurana/).
 I extended the author's implementation, and created a compound key made up of the binary representation of the geohash, followed by the explicit location and a unique identifier.
 
     m_dataOutput.writeLong(Quad.encode(x, y));
@@ -142,8 +144,8 @@ I've been using the Cloudera Manager in [Cloudera VM](http://www.cloudera.com/co
 And per my understanding (and could be wrong), a jar containing the filter code can be placed in a "static" location and referenced using the *HBASE_CLASSPATH* in the *hbase-env.sh*.
 This solution never worked for me. I had to explicitly copy the jars to the parcel location and restart the HBase services.
 
-    sudo cp target/geohash-1.0.8.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
-    sudo cp target/HBaseToolbox-1.0-SNAPSHOT.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
+    $ sudo cp target/geohash-1.0.8.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
+    $ sudo cp target/HBaseToolbox-1.0-SNAPSHOT.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
 
 ## MapReduce Spatial Joins Operations
 

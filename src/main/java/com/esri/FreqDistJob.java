@@ -3,6 +3,7 @@ package com.esri;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.mapreduce.Job;
@@ -10,6 +11,7 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
+import org.apache.hadoop.util.GenericOptionsParser;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
 
@@ -59,8 +61,10 @@ public class FreqDistJob extends Configured implements Tool
     @Override
     public int run(final String[] args) throws Exception
     {
+        setConf(HBaseConfiguration.create(getConf()));
+        final String[] remainingArgs = new GenericOptionsParser(getConf(), args).getRemainingArgs();
         final int rc;
-        if (args.length != 2)
+        if (remainingArgs.length != 2)
         {
             System.err.println("Arguments format: input-path output-path");
             ToolRunner.printGenericCommandUsage(System.err);
@@ -68,7 +72,7 @@ public class FreqDistJob extends Configured implements Tool
         }
         else
         {
-            rc = createSubmittableJob(getConf(), args).waitForCompletion(true) ? 0 : 1;
+            rc = createSubmittableJob(getConf(), remainingArgs).waitForCompletion(true) ? 0 : 1;
         }
         return rc;
     }

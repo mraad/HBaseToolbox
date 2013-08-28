@@ -18,6 +18,9 @@ import com.esri.arcgis.system.Array;
 import com.esri.arcgis.system.IArray;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
+import org.apache.hadoop.hbase.HColumnDescriptor;
+import org.apache.hadoop.hbase.HTableDescriptor;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.HTableInterface;
 import org.apache.hadoop.hbase.client.Put;
@@ -71,11 +74,14 @@ public final class ExportToHBaseTool extends AbstractTool
         try
         {
             final Configuration configuration = HBaseConfiguration.create(createConfiguration(hadoopConfValue.getAsText()));
+            createIfDoesNotExist(configuration, featureClass.getName());
             final HTableInterface table = new HTable(configuration, featureClass.getName());
             try
             {
                 table.setAutoFlush(configuration.getBoolean("exportToHBaseTool.autoFlush", false));
+                messages.addMessage("autoFlush is " + (table.isAutoFlush() ? "true" : "false"));
                 table.setWriteBufferSize(configuration.getInt("exportToHBaseTool.writeBufferSize", 1024 * 1024));
+                messages.addMessage(String.format("writeBufferSize = %d", table.getWriteBufferSize()));
                 count = doExport(configuration, messages, featureClass, table);
                 if (!table.isAutoFlush())
                 {
@@ -94,6 +100,36 @@ public final class ExportToHBaseTool extends AbstractTool
         return count;
     }
 
+    private void createIfDoesNotExist(
+            final Configuration configuration,
+            final String tableName) throws IOException
+    {
+        final HBaseAdmin admin = new HBaseAdmin(configuration);
+        try
+        {
+            if (!admin.tableExists(tableName))
+            {
+                final int maxVersions = configuration.getInt("createHTableTool.maxVersions", 1);
+
+                final HTableDescriptor tableDescriptor = new HTableDescriptor(tableName);
+
+                final HColumnDescriptor geomDescriptor = new HColumnDescriptor(Const.GEOM);
+                geomDescriptor.setMaxVersions(maxVersions);
+                tableDescriptor.addFamily(geomDescriptor);
+
+                final HColumnDescriptor attrDescriptor = new HColumnDescriptor(Const.ATTR);
+                attrDescriptor.setMaxVersions(maxVersions);
+                tableDescriptor.addFamily(attrDescriptor);
+
+                admin.createTable(tableDescriptor);
+            }
+        }
+        finally
+        {
+            admin.close();
+        }
+    }
+
     private int doExport(
             final Configuration configuration,
             final IGPMessages messages,
@@ -101,12 +137,13 @@ public final class ExportToHBaseTool extends AbstractTool
             final HTableInterface table) throws IOException
     {
         int count = 0;
+        final String rowKeyGenerator = configuration.get("exportToHBaseTool.rowKeyGenerator", "oid");
+        messages.addMessage(String.format("rowKeyGenerator = %s, shapeType = %d", rowKeyGenerator, featureClass.getShapeType()));
         final RowKeyGeneratorInterface rowKeyGeneratorInterface;
         switch (featureClass.getShapeType())
         {
             case esriShapeType.esriShapePoint:
-                final String rowKeyGenerator = configuration.get("exportToHBaseTool.rowKeyGenerator", "oid");
-                if ("quadpoint".equalsIgnoreCase(rowKeyGenerator))
+                if ("geohash".equalsIgnoreCase(rowKeyGenerator))
                 {
                     rowKeyGeneratorInterface = new RowKeyGeneratorQuadPoint();
                 }
@@ -119,7 +156,8 @@ public final class ExportToHBaseTool extends AbstractTool
                 rowKeyGeneratorInterface = new RowKeyGeneratorOID();
         }
         final boolean writeToWAL = "true".equalsIgnoreCase(configuration.get("exportToHBaseTool.writeToWAL", "true"));
-        final ShapeWriterInterface shapeWriter = toShapeWriter(configuration, featureClass);
+        messages.addMessage("writeToWAL is " + (writeToWAL ? "true" : "false"));
+        final ShapeWriterInterface shapeWriter = toShapeWriter(configuration, featureClass, rowKeyGenerator);
         final IFields fields = featureClass.getFields();
         try
         {
@@ -196,14 +234,19 @@ public final class ExportToHBaseTool extends AbstractTool
 
     private ShapeWriterInterface toShapeWriter(
             final Configuration configuration,
-            final FeatureClass featureClass) throws IOException
+            final FeatureClass featureClass,
+            final String rowKeyGenerator) throws IOException
     {
         final ShapeWriterInterface shapeWriter;
         final String shapeWriterType = configuration.get("exportToHBase.shapeWriterType", "bytes");
         switch (featureClass.getShapeType())
         {
             case esriShapeType.esriShapePoint:
-                if ("geojson".equalsIgnoreCase(shapeWriterType))
+                if ("geohash".equalsIgnoreCase(rowKeyGenerator))
+                {
+                    shapeWriter = new ShapeWriterNoop();
+                }
+                else if ("geojson".equalsIgnoreCase(shapeWriterType))
                 {
                     shapeWriter = new PointWriterGeoJSON();
                 }
