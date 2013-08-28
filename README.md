@@ -159,7 +159,7 @@ to find the distribution of the frequency of the distances of the two closest po
 Basically, give a point from the first set, find the closest point in the second set and keep a tally of that rounded distance.
 
 The following is a mock implementation as I cannot share the real data.
-So, I wrote a stand alone program to load the lookup table (LUT) data into HBase:
+So, I wrote a standalone program to load the lookup table (LUT) data into HBase:
 
     $ mvn exec:java -q -Dexec.mainClass=com.esri.CreatePutLUT -Dexec.args="1000"
 
@@ -176,6 +176,8 @@ And finally, a MapReduce Job that will perform the spatial search:
 
 ## Future Experiments
 
-* Handle polyline and polygons RowKey by embedding bounding box
+* Handle polyline and polygons RowKey generation by embedding bounding box
 * Expand Quad code implementation to handle bounding boxes
+* Try different quad code implementation such as [Morton](http://en.wikipedia.org/wiki/Z-order_curve).
 * Dynamic Generation of Spatial Index
+* Geo-Enrichment application
