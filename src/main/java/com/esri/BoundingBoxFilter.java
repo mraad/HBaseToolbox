@@ -14,8 +14,6 @@ import java.io.IOException;
  */
 public final class BoundingBoxFilter extends FilterBase
 {
-    // private Log m_log = LogFactory.getLog(BoundingBoxFilter.class);
-
     private BoundingBox m_boundingBox;
 
     public BoundingBoxFilter()
@@ -43,7 +41,6 @@ public final class BoundingBoxFilter extends FilterBase
             final long bits = dataInputStream.readLong();
             final double lon = dataInputStream.readDouble();
             final double lat = dataInputStream.readDouble();
-            // m_log.info(String.format("> %.6f %.6f", lon, lat));
             filter = !m_boundingBox.contains(new WGS84Point(lat, lon));
         }
         catch (IOException e)
