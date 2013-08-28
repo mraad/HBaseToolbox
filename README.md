@@ -158,12 +158,12 @@ Actually, I used this technique to solve a business problem where I was given tw
 to find the distribution of the frequency of the distances of the two closest points from each set within a specified distance.
 Basically, give a point from the first set, find the closest point in the second set and keep a tally of that rounded distance.
 
-The following is a mock implementation as I cannot share the "real" data.
-So, I wrote a stand alone program to load the lookup table (LUT) data:
+The following is a mock implementation as I cannot share the real data.
+So, I wrote a stand alone program to load the lookup table (LUT) data into HBase:
 
     $ mvn exec:java -q -Dexec.mainClass=com.esri.CreatePutLUT -Dexec.args="1000"
 
-Have an [AWK](http://en.wikipedia.org/wiki/AWK) script simulate th other data set:
+Here is an [AWK](http://en.wikipedia.org/wiki/AWK) script to simulate the other data set in HDFS:
 
     $ awk -f points.awk | hadoop fs -put - points.txt
 
