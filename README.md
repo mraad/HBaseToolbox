@@ -173,3 +173,9 @@ And finally, a MapReduce Job that will perform the spatial search:
     $ hadoop fs -rm -R -skipTrash output
     $ hadoop jar target/HBaseToolbox-1.0-SNAPSHOT-job.jar /user/cloudera/points.txt /user/cloudera/output
     $ hadoop fs -cat output/part-r-00000
+
+## Future Experiments
+
+* Handle polyline and polygons RowKey by embedding bounding box
+* Expand Quad code implementation to handle bounding boxes
+* Dynamic Generation of Spatial Index
