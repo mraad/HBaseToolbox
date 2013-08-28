@@ -105,7 +105,15 @@ public final class ExportToHBaseTool extends AbstractTool
         switch (featureClass.getShapeType())
         {
             case esriShapeType.esriShapePoint:
-                rowKeyGeneratorInterface = new RowKeyGeneratorQuadPoint();
+                final String rowKeyGenerator = configuration.get("exportToHBaseTool.rowKeyGenerator", "oid");
+                if ("quadpoint".equalsIgnoreCase(rowKeyGenerator))
+                {
+                    rowKeyGeneratorInterface = new RowKeyGeneratorQuadPoint();
+                }
+                else
+                {
+                    rowKeyGeneratorInterface = new RowKeyGeneratorOID();
+                }
                 break;
             default: // TODO - handle polyline and polygons
                 rowKeyGeneratorInterface = new RowKeyGeneratorOID();
@@ -135,6 +143,7 @@ public final class ExportToHBaseTool extends AbstractTool
                         {
                             final byte[] name = Bytes.toBytes(field.getName());
                             final Object value = feature.getValue(f);
+                            // TODO - Handle date and other types
                             switch (field.getType())
                             {
                                 case esriFieldType.esriFieldTypeString:
