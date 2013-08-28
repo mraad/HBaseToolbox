@@ -121,7 +121,55 @@ So, to convert the schemas into concrete classes, execute the following command:
 
     $ mvn avro:schema
 
-## Spatial Query
+## RowKey Generation
+
+The most important factor in building an HBase table is the design of the RowKey as it heavily affects _Scan_ operations.
+To create spatial locality, I decided to use [Geohash](http://en.wikipedia.org/wiki/Geohash) like in the book [Hbase In Action](http://www.manning.com/dimidukkhurana/).
+I extended the author's implementation, and created a compound key made up of the binary representation of the geohash, followed by the explicit location and a unique identifier.
+
+    m_dataOutput.writeLong(Quad.encode(x, y));
+    m_dataOutput.writeDouble(x);
+    m_dataOutput.writeDouble(y);
+    m_dataOutput.writeInt(feature.getOID());
+
+I like this implementation as it gives me spatial locality, range and uniqueness.
+Range because the geohash code is in the front. Uniqueness because multiple points can gave the same geohash code, thus
+the writing of the x and y, and to make it further unique (think bunch of customer locations in the same tall building :-), I write the ObjectID.
+In addition, it has one extra bit, where in the case of point features, I do not have to store the geometry in a column family and when it comes to filtered scans, a row can be passed
+through or not by the first filter method [filterRowKey](http://my.safaribooksonline.com/book/databases/database-design/9781449314682/filters/id4460220#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0NDkzMTQ2ODIlMkZpZDMyOTQwNzgmcXVlcnk9)
+
+I've been using the Cloudera Manager in [Cloudera VM](http://www.cloudera.com/content/support/en/downloads/download-components/download-products.html?productID=F6mO278Rvo) for all my experiments.
+And per my understanding (and could be wrong), a jar containing the filter code can be placed in a "static" location and referenced using the *HBASE_CLASSPATH* in the *hbase-env.sh*.
+This solution never worked for me. I had to explicitly copy the jars to the parcel location and restart the HBase services.
 
     sudo cp target/geohash-1.0.8.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
     sudo cp target/HBaseToolbox-1.0-SNAPSHOT.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
+
+## MapReduce Spatial Joins Operations
+
+Typically, when you want to perform a spatial join between two datasets in a MapReduce implementation, the smaller set is
+loaded into an in memory spatial index and you stream through the bigger set in the map or reduce phase while performing
+spatial searches on the index. Now this is fine is the set can fit in the mapper or reducer memory space. what if it cannot ?
+this is where HBase can come to the rescue with the above rowkey implementation. Remember, Hbase is a fast massive in-memory
+key-value lookup engine. So we can use the range scan and the filter to quickly locate items in say a bounding box.
+See bounding boxes are nice as they translate to geohash ranges.  The book talks about this in more detail.
+
+Actually, I used this technique to solve a business problem where I was given two huge sets of data points and was asked
+to find the distribution of the frequency of the distances of the two closest points from each set within a specified distance.
+Basically, give a point from the first set, find the closest point in the second set and keep a tally of that rounded distance.
+
+The following is a mock implementation as I cannot share the "real" data.
+So, I wrote a stand alone program to load the lookup table (LUT) data:
+
+    $ mvn exec:java -q -Dexec.mainClass=com.esri.CreatePutLUT -Dexec.args="1000"
+
+Have an [AWK](http://en.wikipedia.org/wiki/AWK) script simulate th other data set:
+
+    $ awk -f points.awk | hadoop fs -put - points.txt
+
+And finally, a MapReduce Job that will perform the spatial search:
+
+    $ mvn -P job clean package
+    $ hadoop fs -rm -R -skipTrash output
+    $ hadoop jar target/HBaseToolbox-1.0-SNAPSHOT-job.jar /user/cloudera/points.txt /user/cloudera/output
+    $ hadoop fs -cat output/part-r-00000
