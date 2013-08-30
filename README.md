@@ -113,6 +113,7 @@ There exists a configuration property named _exportToHBase.shapeWriterType_ with
 * bytes - Write each column qualifier value as a byte array.
 * geojson - Write a column qualifier value in [GeoJSON](http://www.geojson.org/geojson-spec.html) format.
 * avro - Write a column qualifier value in [Avro](http://avro.apache.org/docs/current/) format.
+* esri - Write a column qualifier value is Esri shape binary format. The qualifier name is 'esri'.
 * noop - Do not write any values.
 
 ### Avro Format

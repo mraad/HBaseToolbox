@@ -157,7 +157,7 @@ public final class ExportToHBaseTool extends AbstractTool
         }
         final boolean writeToWAL = "true".equalsIgnoreCase(configuration.get("exportToHBaseTool.writeToWAL", "true"));
         messages.addMessage("writeToWAL is " + (writeToWAL ? "true" : "false"));
-        final ShapeWriterInterface shapeWriter = toShapeWriter(configuration, featureClass, rowKeyGenerator);
+        final ShapeWriterInterface shapeWriter = toShapeWriter(configuration, featureClass, rowKeyGenerator, messages);
         final IFields fields = featureClass.getFields();
         try
         {
@@ -235,10 +235,12 @@ public final class ExportToHBaseTool extends AbstractTool
     private ShapeWriterInterface toShapeWriter(
             final Configuration configuration,
             final FeatureClass featureClass,
-            final String rowKeyGenerator) throws IOException
+            final String rowKeyGenerator,
+            final IGPMessages messages) throws IOException
     {
         final ShapeWriterInterface shapeWriter;
         final String shapeWriterType = configuration.get("exportToHBase.shapeWriterType", "bytes");
+        messages.addMessage("shapeWriterType = " + shapeWriterType);
         switch (featureClass.getShapeType())
         {
             case esriShapeType.esriShapePoint:
@@ -258,13 +260,25 @@ public final class ExportToHBaseTool extends AbstractTool
                 {
                     shapeWriter = new PointWriterBytes();
                 }
+                else if ("esri".equalsIgnoreCase(shapeWriterType))
+                {
+                    shapeWriter = new ShapeWriterEsri();
+                }
                 else // noop
                 {
                     shapeWriter = new ShapeWriterNoop();
                 }
                 break;
-            default: // TODO - Polyline and Polygon !
-                shapeWriter = new ShapeWriterNoop();
+            default:
+                if ("esri".equalsIgnoreCase(shapeWriterType))
+                {
+                    shapeWriter = new ShapeWriterEsri();
+                }
+                else
+                {
+                    // TODO - Polyline and Polygon !
+                    shapeWriter = new ShapeWriterNoop();
+                }
         }
         return shapeWriter;
     }
