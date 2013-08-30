@@ -239,7 +239,7 @@ public final class ExportToHBaseTool extends AbstractTool
             final IGPMessages messages) throws IOException
     {
         final ShapeWriterInterface shapeWriter;
-        final String shapeWriterType = configuration.get("exportToHBase.shapeWriterType", "bytes");
+        final String shapeWriterType = configuration.get("exportToHBaseTool.shapeWriterType", "bytes");
         messages.addMessage("shapeWriterType = " + shapeWriterType);
         switch (featureClass.getShapeType())
         {
