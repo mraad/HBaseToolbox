@@ -6,6 +6,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  */
 public final class Const
 {
+    final static byte[] SHAPE = "shape".getBytes();
     final static byte[] GEOM = "geom".getBytes();
     final static byte[] ATTR = "attr".getBytes();
     final static byte[] LUT = "lut".getBytes();

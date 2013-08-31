@@ -13,8 +13,6 @@ import java.io.IOException;
  */
 public class ShapeWriterEsri implements ShapeWriterInterface
 {
-    private final byte[] m_qual = "shape".getBytes();
-
     @Override
     public void write(
             final Put put,
@@ -28,7 +26,7 @@ public class ShapeWriterEsri implements ShapeWriterInterface
             final int[] counts = new int[size];
             final byte[] bytes = new byte[size];
             esriShape.exportToESRIShapeEx2(esriShapeExportFlags.esriShapeExportDefaults, counts, bytes);
-            put.add(family, m_qual, bytes);
+            put.add(family, Const.SHAPE, bytes);
         }
         finally
         {
