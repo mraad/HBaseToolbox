@@ -15,12 +15,13 @@ import java.io.IOException;
 
 /**
  */
-public class ESRIShapeScan
+public class ESRIPointScan
 {
     public static void main(final String[] args) throws IOException
     {
+        final String tableName = args.length == 0 ? "CustPoi" : args[0];
         final Configuration configuration = HBaseConfiguration.create();
-        final HTable table = new HTable(configuration, "CustPoi");
+        final HTable table = new HTable(configuration, tableName);
         try
         {
             final Scan scan = new Scan();
