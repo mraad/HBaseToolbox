@@ -152,10 +152,10 @@ public final class ExportToHBaseTool extends AbstractTool
                     rowKeyGeneratorInterface = new RowKeyGeneratorOID();
                 }
                 break;
-            default: // TODO - handle polyline and polygons
+            default: // TODO - handle geohash polyline and polygons
                 rowKeyGeneratorInterface = new RowKeyGeneratorOID();
         }
-        final boolean writeToWAL = "true".equalsIgnoreCase(configuration.get("exportToHBaseTool.writeToWAL", "true"));
+        final boolean writeToWAL = configuration.getBoolean("exportToHBaseTool.writeToWAL", true);
         messages.addMessage("writeToWAL is " + (writeToWAL ? "true" : "false"));
         final ShapeWriterInterface shapeWriter = toShapeWriter(configuration, featureClass, rowKeyGenerator, messages);
         final IFields fields = featureClass.getFields();
