@@ -142,11 +142,9 @@ In addition, it has one extra bit, where in the case of point features, I do not
 through or not by the first filter method [filterRowKey](http://my.safaribooksonline.com/book/databases/database-design/9781449314682/filters/id4460220#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0NDkzMTQ2ODIlMkZpZDMyOTQwNzgmcXVlcnk9)
 
 I've been using the Cloudera Manager in [Cloudera VM](http://www.cloudera.com/content/support/en/downloads/download-components/download-products.html?productID=F6mO278Rvo) for all my experiments.
-And per my understanding (and could be wrong), a jar containing the filter code can be placed in a "static" location and referenced using the *HBASE_CLASSPATH* in the *hbase-env.sh*.
-This solution never worked for me. I had to explicitly copy the jars to the parcel location and restart the HBase services.
+The jars used by the filter code can be placed in a "static" location and referenced using the *HBASE_CLASSPATH* in the *HBase Service Environment Safety Valve*
 
-    $ sudo cp target/geohash-1.0.8.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
-    $ sudo cp target/HBaseToolbox-1.0-SNAPSHOT.jar /opt/cloudera/parcels/CDH-4.3.1-1.cdh4.3.1.p0.110/lib/hbase/lib
+    HBASE_CLASSPATH=/opt/esri/geohash-1.0.8.jar:/opt/esri/HBaseToolbox-1.0-SNAPSHOT.jar
 
 ## MapReduce Spatial Joins Operations
 

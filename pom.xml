@@ -11,8 +11,8 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <hadoop.version>2.0.0-cdh4.3.0</hadoop.version>
-        <hbase.version>0.94.6-cdh4.3.1</hbase.version>
+        <hadoop.version>2.0.0-cdh4.4.0</hadoop.version>
+        <hbase.version>0.94.6-cdh4.4.0</hbase.version>
     </properties>
 
     <repositories>
@@ -48,7 +48,7 @@
         <dependency>
             <groupId>ch.hsr</groupId>
             <artifactId>geohash</artifactId>
-            <version>1.0.8</version>
+            <version>1.0.9</version>
         </dependency>
         <dependency>
             <groupId>com.esri.geometry</groupId>

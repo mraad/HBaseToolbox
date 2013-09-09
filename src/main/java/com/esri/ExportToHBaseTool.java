@@ -80,7 +80,7 @@ public final class ExportToHBaseTool extends AbstractTool
             {
                 table.setAutoFlush(configuration.getBoolean("exportToHBaseTool.autoFlush", false));
                 messages.addMessage("autoFlush is " + (table.isAutoFlush() ? "true" : "false"));
-                table.setWriteBufferSize(configuration.getInt("exportToHBaseTool.writeBufferSize", 1024 * 1024));
+                table.setWriteBufferSize(configuration.getInt("exportToHBaseTool.writeBufferSize", 2 * 1024 * 1024));
                 messages.addMessage(String.format("writeBufferSize = %d", table.getWriteBufferSize()));
                 count = doExport(configuration, messages, featureClass, table);
                 if (!table.isAutoFlush())
